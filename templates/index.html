@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>InClause: understand every clause before you sign</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f4fd1'/%3E%3Ctext x='32' y='43' font-size='30' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3EIC%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <h1>In<span>Clause</span></h1>
+    <p class="tagline">Understand every clause before you sign.</p>
+  </header>
+
+  <section class="card" id="upload-card">
+    <form id="upload-form">
+      <label class="drop" id="drop" for="file">
+        <input type="file" id="file" name="document" accept=".pdf,.docx,.txt" required>
+        <span class="drop-title" id="drop-title">Drop a contract here or click to choose</span>
+        <span class="drop-sub">PDF, DOCX or TXT, up to {{ max_mb }} MB</span>
+      </label>
+      <div class="row">
+        <label for="mode">Explain</label>
+        <select id="mode" name="explain_mode">
+          <option value="flagged" selected>Risky and suspicious clauses (recommended)</option>
+          <option value="all">Every clause (slower)</option>
+          <option value="none">Nothing, just flag risks (instant)</option>
+        </select>
+        <button type="submit" id="submit-btn" class="btn primary">Analyse</button>
+        <button type="button" id="sample-btn" class="btn">Try a sample</button>
+      </div>
+    </form>
+    <p id="error" class="error" role="alert" hidden></p>
+    <p class="privacy">Runs on this computer. Your document is never sent to an outside service, and it is wiped when you press Clear or after 30 minutes.</p>
+  </section>
+
+  <section id="results" hidden>
+    <div class="toolbar" id="toolbar">
+      <div class="summary">
+        <div class="riskbar" id="riskbar" aria-hidden="true"></div>
+        <div class="counts" id="counts"></div>
+      </div>
+      <div class="actions">
+        <a class="btn" id="download" href="#">Report</a>
+        <button class="btn" id="print" type="button">Print</button>
+        <button class="btn danger" id="clear" type="button">Clear</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-text" id="progress-text"></div>
+      <div class="bar"><div class="bar-fill" id="bar-fill"></div></div>
+    </div>
+
+    <div class="controls">
+      <div class="filters" id="filters" role="group" aria-label="Filter clauses">
+        <button class="chip active" data-filter="attention" type="button">Needs attention <b id="n-attention">0</b></button>
+        <button class="chip" data-filter="Suspicious" type="button">Suspicious <b id="n-Suspicious">0</b></button>
+        <button class="chip" data-filter="Risky" type="button">Risky <b id="n-Risky">0</b></button>
+        <button class="chip" data-filter="Safe" type="button">Safe <b id="n-Safe">0</b></button>
+        <button class="chip" data-filter="all" type="button">All <b id="n-all">0</b></button>
+      </div>
+      <input type="search" id="search" placeholder="Search clauses" aria-label="Search clauses">
+    </div>
+
+    <div class="doccheck" id="doccheck" hidden></div>
+
+    <p class="note">Flags are written from the point of view of the person signing (tenant, employee, customer or borrower). General information only, not legal advice.</p>
+
+    <div id="cards"></div>
+    <p class="empty" id="empty" hidden>No clauses match this view.</p>
+  </section>
+
+  <footer>InClause &middot; Built by Rushali Pattnaik &middot; Everything runs on your own machine</footer>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

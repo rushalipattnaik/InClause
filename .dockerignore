@@ -1,0 +1,10 @@
+venv/
+.git/
+.github/
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+docs/
+legal_data/faiss_index/

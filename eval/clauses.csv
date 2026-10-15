@@ -1,0 +1,92 @@
+id,split,label,topic,text
+1,dev,Safe,none,This Lease Agreement is made on 1 March 2026 between the Landlord and the Tenant for the premises described in Schedule A.
+2,dev,Safe,payment-terms,"The Tenant shall pay a monthly rent of Rs. 18,000 on or before the 5th day of each month."
+3,test,Suspicious,security-deposit,"The security deposit of Rs. 54,000 shall be non-refundable and may be retained by the Landlord for any reason."
+4,dev,Risky,late-payment,"If rent is not paid by the due date, the Tenant shall pay a penalty of Rs. 500 for each day of delay."
+5,dev,Suspicious,lease-eviction,The Landlord may terminate this lease at any time without notice and without assigning any reason.
+6,test,Risky,termination-notice,Either party may terminate this lease by giving two months written notice to the other party.
+7,dev,Risky,subletting,The Tenant shall not sublet or part with possession of the premises without the prior written consent of the Landlord.
+8,dev,Suspicious,repairs-maintenance,"The Tenant shall bear the cost of all repairs, including structural repairs, irrespective of the cause."
+9,test,Risky,rent-escalation,The rent shall increase by 10% every year during the term of the lease.
+10,dev,Safe,none,The lease is for a period of eleven months commencing from 1 March 2026.
+11,dev,Suspicious,none,"The Landlord may enter the premises at any time, with or without notice, for any purpose."
+12,test,Safe,repairs-maintenance,"The Tenant shall keep the premises in good condition and return them in the same condition, ordinary wear and tear excepted."
+13,dev,Safe,payment-terms,The Tenant shall pay electricity and water charges as per actual meter readings.
+14,dev,Suspicious,security-deposit,The Tenant agrees to a lock-in period of 11 months and shall forfeit the entire deposit if the premises are vacated earlier.
+15,test,Safe,notices,Any notice under this lease shall be in writing and sent to the address of the party stated above.
+16,dev,Risky,employment-notice-period,The Employee shall serve a notice period of ninety days before resignation takes effect.
+17,dev,Risky,restraint-of-trade-in,"For a period of two years after leaving the Company, the Employee shall not work for any competitor anywhere in India."
+18,test,Risky,liquidated-damages-in,"The Employee shall pay the Company Rs. 5,00,000 as liquidated damages if employment ends within three years."
+19,dev,Suspicious,ip-ownership,"All inventions and work product created by the Employee, whether or not during working hours, shall belong to the Company."
+20,dev,Safe,payment-terms,The Employee's salary shall be paid on the last working day of each month by bank transfer.
+21,test,Suspicious,unilateral-changes,"The Company may modify the Employee's role, location or compensation at its sole discretion without consent."
+22,dev,Risky,confidentiality,The Employee shall keep confidential all proprietary information of the Company during and after employment.
+23,dev,Safe,none,"The probation period shall be six months, extendable by the Company."
+24,test,Safe,none,The Employee is entitled to 24 days of paid leave per calendar year.
+25,dev,Suspicious,termination-notice,The Company may terminate the Employee's service without notice or compensation at any time.
+26,dev,Safe,entire-agreement,This Agreement constitutes the entire agreement between the parties and supersedes all prior discussions.
+27,test,Safe,severability,"If any provision of this Agreement is held invalid, the remaining provisions shall continue in full force."
+28,dev,Risky,exclusivity,"The Employee agrees to work exclusively for the Company and shall not take any other work, paid or unpaid."
+29,dev,Suspicious,restraint-of-trade-in,The Employee shall not engage in any business anywhere in the world for ten years after leaving the Company.
+30,test,Suspicious,unilateral-changes,We may change these Terms at any time. Your continued use of the service means you accept the changes.
+31,dev,Risky,limitation-of-liability,Our total liability to you for any claim shall not exceed the fees paid by you in the previous month.
+32,dev,Risky,indemnity,You agree to indemnify and hold us harmless from any claims arising from your use of the service.
+33,test,Suspicious,auto-renewal,Subscriptions renew automatically each year unless you cancel at least 60 days before the renewal date.
+34,dev,Suspicious,non-refundable,"All fees are non-refundable, including in the case of service outages or account termination by us."
+35,dev,Risky,warranty-disclaimer,"The service is provided as is without warranties of any kind, express or implied."
+36,test,Suspicious,arbitration,"Any dispute shall be resolved exclusively by binding arbitration, and you waive your right to participate in any class action."
+37,dev,Safe,data-consent,"We collect your name, email address and usage data to provide and improve the service."
+38,dev,Suspicious,ip-ownership,"You grant us a perpetual, irrevocable, worldwide license to use any content you upload for any purpose."
+39,test,Risky,data-consent,We may share your personal data with our partners and affiliates for marketing purposes.
+40,dev,Risky,governing-law,These Terms are governed by the laws of India and the courts at Mumbai shall have exclusive jurisdiction.
+41,dev,Risky,assignment,You may not assign your rights under these Terms without our prior written consent.
+42,test,Suspicious,termination-notice,"We may suspend or terminate your account at any time, for any reason, in our sole discretion."
+43,dev,Safe,force-majeure,"Neither party shall be liable for delay caused by events beyond its reasonable control, such as natural disasters or war."
+44,dev,Safe,none,Support is available by email between 9 am and 6 pm on business days.
+45,test,Safe,payment-terms,Invoices are payable within 30 days of the invoice date.
+46,dev,Risky,interest-charges,"Overdue amounts will attract interest at 24% per annum, compounded monthly."
+47,dev,Safe,payment-terms,"The Borrower shall repay the loan in 36 equal monthly instalments of Rs. 12,500."
+48,test,Risky,loan-prepayment,A prepayment charge of 5% of the outstanding principal shall apply if the loan is closed before maturity.
+49,dev,Risky,interest-charges,"In case of default, the Lender may recall the entire loan immediately and charge penal interest of 3% per month."
+50,dev,Suspicious,unilateral-changes,The Lender may change the rate of interest at any time at its sole discretion without prior intimation to the Borrower.
+51,test,Suspicious,personal-guarantee,"The Guarantor unconditionally and irrevocably guarantees payment of all amounts due, including future borrowings of the Borrower."
+52,dev,Suspicious,waiver-of-rights,"The Borrower waives all rights of set-off, counterclaim and defence against the Lender."
+53,dev,Safe,none,The Borrower shall provide such financial statements as the Lender may reasonably request.
+54,test,Suspicious,loan-prepayment,Processing fees of 2% of the loan amount are non-refundable even if the loan is not disbursed.
+55,dev,Safe,none,The Borrower shall maintain insurance on the mortgaged property for the duration of the loan.
+56,dev,Risky,confidentiality,The Receiving Party shall use Confidential Information solely for evaluating the proposed transaction.
+57,test,Risky,confidentiality,Confidentiality obligations shall survive for a period of five years after termination of this Agreement.
+58,dev,Safe,confidentiality,Confidential Information does not include information that is publicly available through no fault of the Receiving Party.
+59,dev,Safe,none,The Consultant shall be an independent contractor and not an employee of the Client.
+60,test,Suspicious,payment-terms,The Client may withhold payment at its discretion if it is not satisfied with the services.
+61,dev,Suspicious,indemnity,"The Consultant shall indemnify the Client against all losses, however arising, without any limit."
+62,dev,Risky,ip-ownership,The Consultant assigns to the Client all intellectual property rights in the deliverables upon full payment.
+63,test,Risky,termination-notice,Either party may terminate this Agreement by giving thirty days written notice.
+64,dev,Suspicious,liquidated-damages-in,Time is of the essence for all deliverables and delay beyond three days shall entitle the Client to deduct 10% of fees per day.
+65,dev,Safe,arbitration,The Parties shall attempt to resolve disputes amicably through negotiation before approaching any court.
+66,test,Suspicious,arbitration,"Disputes shall be referred to a sole arbitrator appointed by the Client, whose decision shall be final and binding."
+67,dev,Suspicious,restraint-of-legal-proceedings-in,The Client may not sue the Consultant in any court for any matter arising from this Agreement.
+68,dev,Risky,arbitration,"Any dispute shall be settled by arbitration in Pune under the Arbitration and Conciliation Act, 1996."
+69,test,Safe,none,This Agreement shall commence on the Effective Date and continue for a term of one year.
+70,dev,Safe,notices,Notices shall be deemed received 48 hours after being sent by email.
+71,dev,Risky,limitation-of-liability,"The Seller shall not be liable for any loss of profit, loss of data or indirect damages."
+72,test,Suspicious,non-refundable,"The Buyer shall pay an advance of 50% of the price, which is forfeited if the Buyer cancels the order."
+73,dev,Suspicious,non-refundable,Goods once sold will not be taken back or exchanged under any circumstances.
+74,dev,Safe,none,Delivery shall be made within 15 days of receipt of the advance payment.
+75,test,Safe,warranty-disclaimer,The Seller warrants that the goods are free from defects for a period of twelve months from delivery.
+76,dev,Safe,none,Risk in the goods passes to the Buyer on delivery.
+77,dev,Safe,force-majeure,"The Seller shall not be responsible for delays caused by floods, fires, strikes or government orders."
+78,test,Safe,frustration-in,"If performance becomes impossible due to a change in law, the affected party shall be excused from performance."
+79,dev,Risky,breach-compensation-in,The Contractor shall pay compensation for any loss caused to the Owner by breach of this contract.
+80,dev,Suspicious,non-refundable,The Society may cancel membership and forfeit all fees paid without refund for any breach.
+81,test,Suspicious,unilateral-changes,The Company shall have the sole and absolute right to interpret this Agreement and its decision shall be final.
+82,dev,Risky,data-consent,"The Customer consents to receive promotional messages by SMS, email and phone calls."
+83,dev,Safe,data-consent,The Customer's data will be retained only as long as necessary and deleted on written request.
+84,test,Safe,none,"This agreement may be executed in counterparts, each of which shall be deemed an original."
+85,dev,Safe,none,The headings in this Agreement are for convenience only and do not affect its interpretation.
+86,dev,Risky,non-compete,"The Franchisee shall not, for five years after expiry, open any similar business within 50 km of any outlet of the Franchisor."
+87,test,Risky,ip-ownership,"The Licensee shall not reverse engineer, copy or distribute the software."
+88,dev,Suspicious,indemnity,"The Company shall be entitled to recover from the Member all legal costs on a full indemnity basis, whether or not any proceedings are commenced."
+89,dev,Safe,none,The Parties shall each bear their own costs in connection with the negotiation of this Agreement.
+90,test,Risky,late-payment,A late fee of Rs. 100 shall be charged on any payment received after the due date.
+91,dev,Suspicious,non-refundable,The Tenant shall not be entitled to any refund of advance rent if the lease is terminated before the end of the term for any reason whatsoever.

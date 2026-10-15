@@ -1,0 +1,11 @@
+venv/
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.idea/
+.vscode/
+eval/errors.txt
+*.pdf
+*.docx
