@@ -29,8 +29,9 @@ language model, the embedding model and the vector search entirely on your own m
   have no matching words in the text, so you know what to look for by hand.
 - **Interface.** Drag-and-drop upload, risk summary bar, filters with counts, search, light and dark themes,
   a bundled sample lease, Markdown report download and print.
-- **Private by design.** Runs on localhost, nothing is written to disk, results live in memory and are wiped on
-  Clear or after 30 minutes, and the page makes no external requests.
+- **Private by design.** Runs on localhost, uploads are held only in a temporary file during text extraction and
+  deleted immediately, results live in memory and are wiped on Clear or after 30 minutes, and the page makes no
+  external requests.
 
 ## How it works
 
