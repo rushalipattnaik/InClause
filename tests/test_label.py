@@ -95,3 +95,22 @@ def test_header_only_file_is_upgraded_too(tmp_path):
     path.write_text("id,split,label,topic,text\n", encoding="utf-8")
     run(["Brand new clause"], ["s"], path)
     assert rows(path)[0]["assisted"] == "no"
+
+
+def test_source_is_recorded_and_old_files_gain_the_column(tmp_path):
+    path = tmp_path / "real.csv"
+    path.write_text("id,split,label,topic,text,assisted\n1,real,Safe,,An older clause here,no\n", encoding="utf-8")
+    feed = iter(["r"])
+    label.label_clauses(["A newer clause text"], path=str(path), source="vanguard_lease",
+                        input_fn=lambda _p: next(feed), output_fn=lambda _m: None)
+    got = rows(path)
+    assert [r["source"] for r in got] == ["", "vanguard_lease"]
+
+
+def test_set_source_updates_the_chosen_ids_only(tmp_path):
+    from eval import set_source
+    path = tmp_path / "real.csv"
+    run(["c1 clause", "c2 clause", "c3 clause", "c4 clause"], ["s", "s", "r", "x"], path)
+    assert set_source.parse_ids("1-2, 4") == {1, 2, 4}
+    assert set_source.set_source(str(path), {1, 2, 4}, "rental") == 3
+    assert [r["source"] for r in rows(path)] == ["rental", "rental", "", "rental"]

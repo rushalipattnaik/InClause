@@ -1,0 +1,67 @@
+{
+  "best_epoch": 1,
+  "val": {
+    "accuracy": 0.44022988505747124,
+    "macro_f1": 0.3010550614979857,
+    "per_class": {
+      "Safe": {
+        "precision": 0.4915254237288136,
+        "recall": 0.8571428571428571,
+        "f1": 0.6247755834829444,
+        "support": 406
+      },
+      "Risky": {
+        "precision": 0.5172413793103449,
+        "recall": 0.03694581280788178,
+        "f1": 0.06896551724137932,
+        "support": 406
+      },
+      "Suspicious": {
+        "precision": 0.15037593984962405,
+        "recall": 0.3448275862068966,
+        "f1": 0.2094240837696335,
+        "support": 58
+      }
+    },
+    "confusion": {
+      "Safe": {
+        "Safe": 348,
+        "Risky": 14,
+        "Suspicious": 44
+      },
+      "Risky": {
+        "Safe": 322,
+        "Risky": 15,
+        "Suspicious": 69
+      },
+      "Suspicious": {
+        "Safe": 38,
+        "Risky": 0,
+        "Suspicious": 20
+      }
+    }
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "val_macro_f1": 0.3010550614979857,
+      "val_accuracy": 0.44022988505747124
+    }
+  ],
+  "settings": {
+    "data_dir": "C:\\My Projects\\InClause\\data",
+    "output_dir": "C:\\My Projects\\InClause\\models\\legal-bert-risk",
+    "report": "C:\\My Projects\\InClause\\eval\\train_report.json",
+    "base_model": "nlpaueb/legal-bert-base-uncased",
+    "epochs": 1,
+    "lr": 2e-05,
+    "batch_size": 16,
+    "warmup_ratio": 0.1,
+    "max_length": 256,
+    "cuad_weight": 0.5,
+    "max_train_samples": 100,
+    "device": "",
+    "seed": 42,
+    "dry_run": false
+  }
+}

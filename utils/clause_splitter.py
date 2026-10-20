@@ -20,6 +20,9 @@ _PLACEHOLDER = re.compile(
 )
 _SIGNING_BLOCK = re.compile(r"^(?:\d+[.)]\s*)?in witness whereof\b|signature of the\b", re.IGNORECASE)
 
+_TERMINAL_PUNCTUATION = (".", "!", "?", ";", ":", ")")
+_STARTS_LIKE_A_NEW_CLAUSE = re.compile(r"^[A-Z0-9(\"\u201c']")
+
 _ABBREVIATIONS = ["Rs.", "No.", "Nos.", "Inc.", "Ltd.", "Pvt.", "Co.", "Corp.", "e.g.", "i.e.",
                   "etc.", "Mr.", "Mrs.", "Ms.", "Dr.", "Sec.", "Art.", "approx.", "vs.", "viz."]
 _DOT = "\u2024"
@@ -76,6 +79,26 @@ def _merge_short(pieces):
     return merged
 
 
+def merge_continuations(clauses):
+    """Glue back fragments that were split mid-sentence, for example by a page break.
+
+    A fragment is merged into the previous one when it starts with a lowercase letter, or when the previous fragment
+    has no closing punctuation and the fragment does not start like a new clause (capital, digit, bracket, quote).
+    Numbered or lettered items are never merged.
+    """
+    merged = []
+    for clause in clauses:
+        text = clause.strip()
+        if merged and not _MARKER.match(text):
+            continues = text[:1].islower()
+            unfinished = not merged[-1].rstrip().endswith(_TERMINAL_PUNCTUATION)
+            if continues or (unfinished and not _STARTS_LIKE_A_NEW_CLAUSE.match(text)):
+                merged[-1] = f"{merged[-1]} {text}"
+                continue
+        merged.append(text)
+    return merged
+
+
 def _is_template_noise(clause):
     return bool(_SIGNING_BLOCK.search(clause)) or len(_PLACEHOLDER.findall(clause)) >= 3
 
@@ -88,4 +111,5 @@ def split_into_clauses(text):
         else:
             pieces = [paragraph]
         clauses.extend(pieces)
+    clauses = merge_continuations(clauses)
     return [c[:MAX_CLAUSE_CHARS] for c in clauses if len(c) >= MIN_CLAUSE_CHARS and not _is_template_noise(c)]

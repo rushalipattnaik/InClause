@@ -15,7 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REAL_PATH = os.path.join(HERE, "clauses_real.csv")
 KB_PATH = os.path.join(os.path.dirname(HERE), "legal_data", "knowledge_base.json")
 LABEL_KEYS = {"s": "Safe", "r": "Risky", "x": "Suspicious"}
-FIELDS = ["id", "split", "label", "topic", "text", "assisted"]
+FIELDS = ["id", "split", "label", "topic", "text", "assisted", "source"]
 
 
 def read_existing(path):
@@ -30,14 +30,14 @@ def upgrade_file(path):
         return
     with open(path, newline="", encoding="utf-8") as f:
         header = next(csv.reader(f), [])
-    if "assisted" in header:
+    if header == FIELDS:
         return
     rows = read_existing(path)
     with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS)
         writer.writeheader()
         for row in rows:
-            writer.writerow({key: row.get(key, "no" if key == "assisted" else "") for key in FIELDS})
+            writer.writerow({key: row.get(key) or ("no" if key == "assisted" else "") for key in FIELDS})
 
 
 def append_row(path, row):
@@ -76,7 +76,7 @@ def ask_label(suggestion, input_fn):
             return key, "no"
 
 
-def label_clauses(clauses, path=REAL_PATH, topics=False, suggest_fn=None, input_fn=input, output_fn=print):
+def label_clauses(clauses, path=REAL_PATH, topics=False, suggest_fn=None, source="", input_fn=input, output_fn=print):
     upgrade_file(path)
     existing = read_existing(path)
     done = {r["text"] for r in existing}
@@ -104,7 +104,7 @@ def label_clauses(clauses, path=REAL_PATH, topics=False, suggest_fn=None, input_
             continue
         topic = ask_topic(topic_ids, input_fn, output_fn) if topics else ""
         append_row(path, {"id": next_id, "split": "real", "label": choice, "topic": topic,
-                          "text": clause, "assisted": assisted})
+                          "text": clause, "assisted": assisted, "source": source})
         next_id += 1
         saved += 1
     output_fn(f"\nSaved {saved} new labelled clauses to {path}")
@@ -138,7 +138,8 @@ def main():
     print("Label each clause from the point of view of the person signing.")
     print("Suspicious = removes a right, hides or uncaps a cost, or lets one side act alone.")
     print("Risky = a normal clause that still carries obligations, costs or penalties. Safe = neutral.")
-    label_clauses(clauses[: args.count], topics=args.topics, suggest_fn=suggest_fn)
+    source = os.path.splitext(os.path.basename(args.document))[0]
+    label_clauses(clauses[: args.count], topics=args.topics, suggest_fn=suggest_fn, source=source)
 
 
 if __name__ == "__main__":

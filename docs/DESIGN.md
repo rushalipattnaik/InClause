@@ -18,15 +18,23 @@ cosine similarity. Showing nothing beats showing something irrelevant, so a note
 also come within a margin of the best match. Both numbers are tunable with `python -m eval.run_eval --retrieval --tune`.
 The index is cached on disk together with a hash of the whole knowledge base, so editing any note rebuilds it.
 
-## Three classifiers, one decision rule
+## Classifiers, and how to choose
 - **Rules** are instant and every flag shows the matching words. Weak triggers such as "fee" or "termination" are
   cleared when the same clause puts the cost on the owner or company, shares it, or grants the signer a right.
-- **ML** is logistic regression on the same embeddings used for retrieval, trained from the labelled CSV files at
-  first use. It costs no extra model and can learn from clauses the rules never saw.
+- **ML** is logistic regression trained from the labelled CSV files at first use, with three feature choices:
+  sentence embeddings, word and phrase counts, or word counts plus the rule signals (`stacked`). Word-based models can
+  show the key words they relied on, so ML-only mode still says why a clause was flagged.
 - **Hybrid** keeps every Suspicious rule decision, lets the model rescue clauses the rules passed (capped at Risky),
   and lets it clear weak rule flags only when it is confident.
 The default stays on rules until a measurement on real clauses shows otherwise. A weak model can make the hybrid worse
 than the rules alone, which is why the comparison exists.
+
+## Legal-BERT as an optional model
+A fine-tuned Legal-BERT can replace the embedding classifier. It is trained offline from CUAD-derived weak labels plus your
+own clauses, loaded lazily from disk, and used through the same interface as the other models, so `CLASSIFIER` and the
+hybrid logic do not change. If the model directory is missing the app falls back to the embedding classifier with a
+one-time warning, and if the model fails at run time the clause falls back to the rules. Its hybrid thresholds are
+higher by default because its probabilities are sharper than those of logistic regression.
 
 ## Guarding the model's output
 The prompt tells the model to stay faithful to the clause and not to invent citations. After generation, a preamble

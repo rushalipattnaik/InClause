@@ -32,6 +32,13 @@ Labelling rubric, from the point of view of the person signing: **Suspicious** r
 or lets one side act alone. **Risky** is a normal clause that still carries obligations, costs or penalties.
 **Safe** is neutral or informational.
 
+## Improving the rules without fooling yourself
+
+`python -m eval.errors` writes `docs/ERRORS.md`, listing every clause where the rules disagree with you and the words
+that triggered each wrong flag. That is the way to improve the rules. But once you change the rules to fix those
+clauses, the score on the same clauses is no longer an honest number. Keep the "before" result, then label at least 30
+new clauses from a different contract and measure the improved rules on those. Report both numbers.
+
 ## Other commands
 
 ```
@@ -45,10 +52,46 @@ downloading a model. Its numbers are meaningless.
 
 ## Protocols
 
-1. **Authored set, 5-fold cross-validation.** The ML model never scores a clause it trained on. The rules were written
-   with these clauses in view, so their score here is optimistic.
-2. **Your real clauses.** The ML model trains on the authored set only and is scored on `clauses_real.csv`. This is the
-   comparison to trust, and the only one worth quoting.
+The report compares the rules with three learned models (`embed`: sentence embeddings, `tfidf`: word and phrase counts,
+`stacked`: word counts plus which rules fired) and with a hybrid of the rules and each model.
+
+1. **Authored set, cross-validated.** A model never scores a clause it trained on. The rules were written with these
+   clauses in view, so their score here is optimistic.
+2. **Your real clauses, models trained on the authored set only.** A clean test, but the models see only 91 clauses.
+3. **Your real clauses, cross-validated.** Each model trains on the authored set plus your other clauses, which matches
+   how it would be deployed. If the `source` of each clause is recorded (the labelling tool does this, and
+   `python -m eval.set_source --ids 1-45 --name rental_agreement` fixes older rows), each test fold is a whole contract
+   the model never saw. That is the strictest and most honest test. Without sources, clauses from the same contract can
+   land in both training and test folds, which flatters the models.
+
+The recommendation in `docs/RESULTS.md` uses protocol 3. A learned model replaces the rules only if it beats them by a
+clear margin on your clauses.
+
+## How to compare classifiers
+
+`python -m eval.full_report` compares the rules, every learned model, and a hybrid of the rules with each model, all on
+the same clauses. For each system it reports accuracy and macro-F1, and for the rules, the best ML model and the best
+hybrid it also prints precision, recall and F1 per class and a confusion matrix. The `## Verdict` section then states
+either "ML beats rules by X macro-F1" or "ML does NOT beat rules; keep `CLASSIFIER=rules`", and the same for the hybrid.
+
+- **Macro-F1** averages the F1 of Safe, Risky and Suspicious equally, so doing well only on the common class does not
+  hide failing on the rare one. A gain of less than 0.03 macro-F1 is treated as no gain, because 85 clauses cannot tell
+  such a small difference from chance.
+- **Legal-BERT** appears (as `ML (legalbert)` and `Hybrid (legalbert)`) when `models/legal-bert-risk` exists. It is scored
+  only on your held-out clauses and is not cross-validated. If any of those clauses were in its training file the report
+  warns, because the score would be inflated.
+- **Hybrid thresholds.** Legal-BERT's defaults are `HYBRID_FLAG_MIN=0.75` and `HYBRID_SAFE_MIN=0.85`. Tune them on the
+  validation split with `python -m eval.run_eval --tune-hybrid`, and then judge the result on your own clauses, not on the
+  validation data they were tuned on.
+- See [TRAINING.md](TRAINING.md) for how the model is trained and why CUAD-derived labels are noisy.
+
+## Why learned models need data
+
+With 91 training clauses, a pure word-count model learned almost nothing (accuracy about 0.44 under cross-validation),
+while the stacked model matched the rules because it receives the rule signals as inputs. More clauses from many
+different contracts is the main way to improve a learned model. Rough guide: dozens of clauses per contract type is
+a start, several hundred is where learned models usually begin to beat hand-written rules, and fine-tuning a
+transformer only makes sense with around a thousand or more.
 
 ## Sanity check on the authored set
 

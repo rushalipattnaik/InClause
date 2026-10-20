@@ -2,6 +2,7 @@ import argparse
 import contextlib
 import datetime
 import io
+import math
 import os
 import sys
 
@@ -40,23 +41,40 @@ def plain_lines(scores):
 
 def recommendation(scores, count):
     rules = scores.get("Rules")
-    hybrid = scores.get("Hybrid (rules + ML)")
-    ml = scores.get("ML (embeddings + logistic regression)")
     if not rules:
         return "Keep `CLASSIFIER=rules`."
-    best_name, best = "Rules", rules
-    for name, candidate in (("Hybrid", hybrid), ("ML", ml)):
-        if candidate and candidate["macro_f1"] > best["macro_f1"] + MIN_GAIN:
-            best_name, best = name, candidate
-    if best_name == "Rules":
-        text = "Keep `CLASSIFIER=rules`: neither the ML model nor the hybrid beat it by a meaningful margin on your clauses."
+    candidates = {n: s for n, s in scores.items() if n.startswith(("ML (", "Hybrid ("))}
+    best_name = max(candidates, key=lambda n: candidates[n]["macro_f1"], default=None)
+    if best_name is None or candidates[best_name]["macro_f1"] <= rules["macro_f1"] + MIN_GAIN:
+        text = "Keep `CLASSIFIER=rules`: no ML model or hybrid beat it by a meaningful margin on your clauses."
     else:
-        setting = "hybrid" if best_name == "Hybrid" else "ml"
+        kind = best_name[best_name.index("(") + 1:-1]
+        mode = "hybrid" if best_name.startswith("Hybrid") else "ml"
         text = (f"{best_name} beat the rules by more than {MIN_GAIN:.2f} macro-F1 on your clauses. "
-                f"You can set `CLASSIFIER={setting}` in `.env`.")
+                f"You can set `CLASSIFIER={mode}` and `ML_KIND={kind}` in `.env`.")
     if count < ENOUGH:
         text += f" With only {count} clauses this can change a lot, so label at least {ENOUGH} before deciding."
     return text
+
+
+def verdict_lines(scores):
+    """Plain statements of whether the ML model and the hybrid beat the rules on the same clauses."""
+    rules = scores.get("Rules")
+    if not rules:
+        return ["Rules were not evaluated."]
+    lines = []
+    for label, prefix, advice in (("ML", "ML (", " Keep `CLASSIFIER=rules`."), ("Hybrid", "Hybrid (", "")):
+        group = {n: s for n, s in scores.items() if n.startswith(prefix)}
+        if not group:
+            lines.append(f"{label} was not evaluated.")
+            continue
+        name = max(group, key=lambda n: group[n]["macro_f1"])
+        gain = group[name]["macro_f1"] - rules["macro_f1"]
+        if gain > MIN_GAIN:
+            lines.append(f"{label} beats rules by {gain:.2f} macro-F1 ({name}).")
+        else:
+            lines.append(f"{label} does NOT beat rules ({name} is {gain:+.2f} macro-F1 against the rules).{advice}")
+    return lines
 
 
 def resume_line(scores, count, assisted):
@@ -64,8 +82,10 @@ def resume_line(scores, count, assisted):
         return None
     s = scores["Rules"]
     precision, recall, _ = s["flag"]
+    margin = round(1.96 * math.sqrt(s["accuracy"] * (1 - s["accuracy"]) / count) * 100)
     line = (f"Evaluated on {count} clauses I labelled from real contracts: the rule-based classifier matched my label on "
-            f"{percent(s['accuracy'])} of clauses and noticed {percent(recall)} of the clauses I marked risky or suspicious.")
+            f"{percent(s['accuracy'])} of clauses (about plus or minus {margin} points) and noticed {percent(recall)} "
+            f"of the clauses I marked risky or suspicious.")
     if assisted:
         line += f" ({assisted} of the {count} labels were accepted from an AI suggestion, so say so if asked.)"
     return line
@@ -98,6 +118,9 @@ def run_report(real_path=run_eval.REAL_PATH, authored_path=run_eval.CSV_PATH, ou
             out += plain_lines(llm_scores)
             scores.update(llm_scores)
         out += ["", recommendation(scores, len(real)), ""]
+        out += ["## Verdict", ""] + [f"- {line}" for line in verdict_lines(scores)]
+        out += ["", "Per-class precision, recall, F1 and a confusion matrix for the rules, the best ML model and the best "
+                    "hybrid are in the classifier comparison below.", ""]
         if assisted and assisted / len(real) > 0.5:
             out += ["> More than half of the labels were accepted AI suggestions. Be careful comparing against the "
                     "local LLM, because it may simply agree with itself.", ""]

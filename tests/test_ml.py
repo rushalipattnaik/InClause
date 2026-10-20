@@ -27,7 +27,7 @@ def model(fake_embeddings):
     m = ml_classifier.EmbeddingClassifier(fake_embeddings, rows())
     ml_classifier.set_model(m)
     yield m
-    ml_classifier.set_model(None)
+    ml_classifier.reset()
 
 
 def test_probabilities_are_valid_and_sensible(model):
@@ -62,9 +62,8 @@ def test_ml_mode_uses_only_the_model(model):
     assert out == {"label": "Safe", "reasons": []}
 
 
-def test_falls_back_to_rules_when_no_model_is_available(monkeypatch):
-    monkeypatch.setattr(ml_classifier, "_model", None)
-    monkeypatch.setattr(ml_classifier, "_attempted", True)
+def test_falls_back_to_rules_when_no_model_is_available():
+    ml_classifier.set_model(None, kind="embed")
     clause = "The deposit is non-refundable under any circumstances at all."
     assert analysis.analyze_all([clause], mode="hybrid") == [analyze_clause(clause)]
 

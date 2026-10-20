@@ -19,7 +19,13 @@ def analyze_all(clauses, mode=None):
     model = ml_classifier.get_model()
     if model is None:
         return rule_results
-    probabilities = model.predict_proba_many(clauses)
+    try:
+        probabilities = model.predict_proba_many(clauses)
+    except Exception as e:
+        ml_classifier.warn_once(f"the {model.kind} classifier failed ({type(e).__name__}), using the rules instead")
+        return rule_results
     if mode == "ml":
-        return [ml_classifier.ml_only(p) for p in probabilities]
-    return [ml_classifier.combine(r, p) for r, p in zip(rule_results, probabilities, strict=True)]
+        guesses = [max(ml_classifier.LABELS, key=lambda lab: p[lab]) for p in probabilities]
+        terms = model.explain_terms(clauses, guesses)
+        return [ml_classifier.ml_only(p, t, model.kind) for p, t in zip(probabilities, terms, strict=True)]
+    return [ml_classifier.combine(r, p, kind=model.kind) for r, p in zip(rule_results, probabilities, strict=True)]

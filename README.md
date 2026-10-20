@@ -21,17 +21,17 @@ language model, the embedding model and the vector search entirely on your own m
 - **Long documents.** Clauses are flagged instantly; explanations stream in afterwards, most serious first.
 - **Three risk levels** (Safe, Risky, Suspicious), each with the exact words that triggered it, written from the
   point of view of the person signing (tenant, employee, customer, borrower).
-- **Three classifiers you can compare:** keyword rules (default), an embedding-based logistic regression, and a hybrid.
-  Pick one using the evaluation harness, not by guessing (see [docs/EVALUATION.md](docs/EVALUATION.md)).
+- **Several classifiers you can compare:** keyword rules (default), learned models (a fine-tuned Legal-BERT when you
+  have trained one, otherwise sentence embeddings, word counts, or word counts plus the rule signals), and hybrids of
+  rules and a model. Pick one using the evaluation harness, not by guessing (see [docs/EVALUATION.md](docs/EVALUATION.md)).
 - **Grounded explanations.** FAISS retrieves matching legal notes; a LangChain chain passes them to a local Ollama model.
   A citation guard removes any sentence that cites a law or section that is not in the clause or the retrieved notes.
 - **Missing-topic check.** For rental, employment, loan and terms-of-service documents, lists standard topics that
   have no matching words in the text, so you know what to look for by hand.
 - **Interface.** Drag-and-drop upload, risk summary bar, filters with counts, search, light and dark themes,
   a bundled sample lease, Markdown report download and print.
-- **Private by design.** Runs on localhost, uploads are held only in a temporary file during text extraction and
-  deleted immediately, results live in memory and are wiped on Clear or after 30 minutes, and the page makes no
-  external requests.
+- **Private by design.** Runs on localhost, nothing is written to disk, results live in memory and are wiped on
+  Clear or after 30 minutes, and the page makes no external requests.
 
 ## How it works
 
@@ -91,13 +91,29 @@ Accuracy needs a correct answer for each clause, and only a person can supply th
 ```
 python -m eval.label my_contract.pdf --count 50   # 1. press s, r or x for each clause (about 15 minutes)
 python -m eval.full_report                         # 2. writes docs/RESULTS.md in plain language
+python -m eval.errors                              # 3. optional: lists where the rules disagree with you
 ```
 Step 1 never shows the tool's own answer, so the score stays honest. Add `--suggest --model mistral` to get a local-AI
 suggestion you can accept with Enter. That is faster, and every accepted suggestion is recorded and reported.
 
-`CLASSIFIER=rules` (default) is instant and fully explainable. `ml` and `hybrid` use a model trained on the labelled
-clauses in `eval/`. The report says whether either beats the rules on your clauses, and only then should you switch.
-Details are in [docs/EVALUATION.md](docs/EVALUATION.md).
+`CLASSIFIER=rules` (default) is instant and fully explainable. `ml` and `hybrid` use a model chosen by `ML_KIND`:
+`auto` (default) uses the fine-tuned Legal-BERT if `models/legal-bert-risk` exists and otherwise falls back to the
+embedding classifier with a one-time warning. The report says whether any model beats the rules on your clauses, and
+only then should you switch. Details are in [docs/EVALUATION.md](docs/EVALUATION.md).
+
+## Training the ML classifier
+
+The ML path can use a Legal-BERT (`nlpaueb/legal-bert-base-uncased`) fine-tuned on weakly labelled clauses from the
+public CUAD dataset plus your own labelled clauses. Everything runs locally; the model is downloaded once.
+
+```
+python -m scripts.prepare_training_data     # downloads CUAD (about 18 MB) and writes data/train.jsonl, val.jsonl, test.jsonl
+python -m scripts.train_legal_bert          # fine-tunes and saves models/legal-bert-risk (add --dry-run to check first)
+python -m eval.full_report                  # compares rules, ML and hybrid on your held-out clauses
+python -m eval.run_eval --tune-hybrid       # optional: recommend HYBRID_FLAG_MIN and HYBRID_SAFE_MIN
+```
+Training is slow on a CPU (see [docs/TRAINING.md](docs/TRAINING.md) for a CPU-friendly setting and for training on a
+free GPU). CUAD labels are weak and perspective-agnostic, so the model may not beat the rules; the report decides.
 
 ## Configuration (`.env`)
 
@@ -106,8 +122,10 @@ Details are in [docs/EVALUATION.md](docs/EVALUATION.md).
 | `OLLAMA_MODEL` | `llama3.2:3b` | Any model from the Ollama library |
 | `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Where Ollama listens |
 | `CLASSIFIER` | `rules` | `rules`, `ml` or `hybrid` |
-| `HYBRID_FLAG_MIN` | `0.60` | Hybrid: model confidence needed to flag a clause the rules passed |
-| `HYBRID_SAFE_MIN` | `0.70` | Hybrid: model confidence needed to clear a weak rule flag |
+| `ML_KIND` | `auto` | Model used by `ml` and `hybrid`: `auto`, `legalbert`, `embed`, `tfidf` or `stacked` |
+| `LEGAL_BERT_DIR` | `models/legal-bert-risk` | Where the fine-tuned Legal-BERT is saved and loaded from |
+| `HYBRID_FLAG_MIN` | `0.75` for Legal-BERT, `0.60` otherwise | Hybrid: model confidence needed to flag a clause the rules passed |
+| `HYBRID_SAFE_MIN` | `0.85` for Legal-BERT, `0.70` otherwise | Hybrid: model confidence needed to clear a weak rule flag |
 | `RAG_MIN_SIMILARITY` | `0.40` | Minimum cosine similarity for a note to be shown |
 | `RAG_MARGIN` | `0.15` | A note must score within this distance of the best match |
 | `RAG_TOP_K` | `2` | Notes per clause |
@@ -124,12 +142,14 @@ utils/
   text_cleanup.py       ligature normalisation and glued-word repair
   clause_splitter.py    wrapped lines, numbering, headings, templates
   classifier.py         explainable regex rules
-  ml_classifier.py      embeddings + logistic regression, hybrid combiner
+  ml_classifier.py      embed / tfidf / stacked logistic regression, Legal-BERT adapter, hybrid
+  legal_classifier.py   fine-tuned Legal-BERT inference (batched, lazy, thread-safe)
   analysis.py           picks rules, ml or hybrid
   rag_engine.py         FAISS index, cosine scores, threshold and margin
   summarizer.py         LangChain chain, preamble stripping, citation guard
   doc_checks.py         document type and missing-topic checks
   jobs.py               in-memory job queue and report builder
+scripts/                CUAD data preparation and Legal-BERT training
 legal_data/             knowledge base with a reviewed flag per note
 eval/                   labelled data, labelling tool, evaluation, one-command report
 tests/                  unit and API tests

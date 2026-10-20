@@ -90,3 +90,10 @@ def analyze_clause(clause):
 
 def classify_clause(clause):
     return analyze_clause(clause)["label"]
+
+
+def rule_features(clause):
+    hits = [int(bool(pattern.search(clause))) for pattern, _ in _SUSPICIOUS + _RISKY]
+    hits += [int(bool(m.search(clause))) for m in _MITIGATORS]
+    label = analyze_clause(clause)["label"]
+    return hits + [int(label == name) for name in ("Safe", "Risky", "Suspicious")]
